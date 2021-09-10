@@ -31,6 +31,7 @@ class enemy{
   draw() {
     push();
     fill('red');
+    strokeWeight(2);
     ellipse(this.x, this.y, this.rad, this.rad);
     pop();
   }
@@ -73,13 +74,18 @@ function setup() {
 async function draw() {
   background("silver");
 
+
+  noStroke();
+  fill('black');
+  textSize(24);
+  text(`Score: ${score}`, 55, 35);
+
+  drawControls(650, 390);
+  spawnEnemies({delay: 3, limit: 5});
   move();
-  if(!lockSpin){
+  if (!lockSpin) {
     turn();
   }
-  // resize();
-  
-  spawnEnemies({delay: 3, limit: 5});
 
   for(let i = 0; i < enemies.length; i++) {
     enemies[i].draw();
@@ -89,19 +95,27 @@ async function draw() {
       cScale += 0.1;
       actualRad = rad * cScale;
       await spin360();
-      console.log(score);
     }
   }
 
+  drawPlayer();
+
+}
+
+function drawPlayer() {
   push();
   translate(x, y);
   scale(cScale);
   rotate(angle);
-  circle(0, 0, rad*2);
+  noStroke();
+  fill("white");
+  circle(0, 0, rad * 2);
   stroke("black");
+  strokeWeight(2);
   line(0, 0, rad, 0);
   pop();
 }
+
 function keyTyped() {
   if (key === " " || key === "z") {
     resize();
@@ -110,7 +124,6 @@ function keyTyped() {
     setup();
   }
 }
-
 
 function checkKeys(...keys){
   if (keyIsPressed){ //prevents checking what key is pressed when no key is pressed
@@ -181,10 +194,9 @@ function spawnEnemies(
     overlapPlayer = false,
     pDistance = 30,
     delay = 3,
-    limit = 0
+    limit = 5
   } = {}
 ) {
-  //choose a random spawn point for the enemy without overlapping with the player or other enemies
   if (millis() - lastSpawn > delay * 1000) {
     let spawnX = random(0, width);
     let spawnY = random(0, height);
@@ -223,4 +235,46 @@ async function spin360() {
   }
   angle = oldAngle;
   lockSpin = false;
+}
+
+function drawKey(letter, x, y){
+  noFill();
+  stroke('black')
+  strokeWeight(5);
+  square(x, y, 30, 5);
+  strokeWeight(2);
+  fill('black')
+  textSize(24);
+  textAlign('center')
+  text(letter, x, y + 8);
+}
+
+function drawControls(x, y) {
+  let keyOffset = 40;
+  let arrowsDiff = { x: 130, y: 0 }
+
+  drawKey('w', x, y);
+  drawKey('s', x, y + keyOffset);
+  drawKey('a', x - keyOffset, y + keyOffset);
+  drawKey('d', x + keyOffset, y + keyOffset);
+
+  let aX = x + arrowsDiff.x;
+  let aY = y + arrowsDiff.y;
+  drawKey('↑', aX, aY);
+  drawKey('↓', aX, aY + keyOffset);
+  drawKey('←', aX - keyOffset, aY + keyOffset);
+  drawKey('→', aX + keyOffset, aY + keyOffset);
+
+
+  drawKey("z", x - 100, y + keyOffset);
+  drawKey("r", x - 200, y + keyOffset);
+
+
+  noStroke();
+  fill('black');
+  textSize(24);
+  strokeWeight(38);
+  text('Movement', x + arrowsDiff.x/2, y + arrowsDiff.y + keyOffset * 2);
+  text("Shrink", x - 100, y + keyOffset * 2);
+  text("Restart", x - 200, y + keyOffset * 2);
 }
